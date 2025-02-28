@@ -586,22 +586,17 @@ get_argodomain() {
 get_links(){
 argodomain=$(get_argodomain)
 echo -e "\e[1;32mArgo域名：\e[1;35m${argodomain}\e[0m\n"
-ISP=$(curl -sL --max-time 5 https://speed.cloudflare.com/meta | awk -F\" '{print $26}' | sed -e 's/ /_/g' || echo "0")
-get_name() { if [ "$HOSTNAME" = "s1.ct8.pl" ]; then SERVER="CT8"; else SERVER=$(echo "$HOSTNAME" | cut -d '.' -f 1); fi; echo "$SERVER"; }
-NAME="$ISP-$(get_name)"
-rm -rf jh.txt
-vl_link="vless://$UUID@$IP:$vless_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reym&fp=chrome&pbk=$public_key&type=tcp&headerType=none#$NAME-reality"
-echo "$vl_link" >> jh.txt
-vmws_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws\", \"add\": \"$IP\", \"port\": \"$vmess_port\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\", \"sni\": \"\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)"
+vl_link="vless://$UUID@$IP:$vless_port?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$reym&fp=chrome&pbk=$public_key&type=tcp&headerType=none#$snb-reality"
+echo "$vl_link" > jh.txt
+vmws_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$snb-vmess-ws\", \"add\": \"$IP\", \"port\": \"$vmess_port\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\", \"sni\": \"\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)"
 echo "$vmws_link" >> jh.txt
-vmatls_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws-tls-argo\", \"add\": \"icook.hk\", \"port\": \"8443\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)"
+vmatls_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$snb-vmess-ws-tls-argo\", \"add\": \"icook.hk\", \"port\": \"8443\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"\"}" | base64 -w0)"
 echo "$vmatls_link" >> jh.txt
-vma_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$NAME-vmess-ws-argo\", \"add\": \"icook.hk\", \"port\": \"8880\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\"}" | base64 -w0)"
+vma_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"$snb-vmess-ws-argo\", \"add\": \"icook.hk\", \"port\": \"8880\", \"id\": \"$UUID\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$UUID-vm?ed=2048\", \"tls\": \"\"}" | base64 -w0)"
 echo "$vma_link" >> jh.txt
-hy2_link="hysteria2://$UUID@$IP:$hy2_port?sni=www.bing.com&alpn=h3&insecure=1#$NAME-hy2"
+hy2_link="hysteria2://$UUID@$IP:$hy2_port?sni=www.bing.com&alpn=h3&insecure=1#$snb-hy2"
 echo "$hy2_link" >> jh.txt
-url=$(cat jh.txt 2>/dev/null)
-baseurl=$(echo -e "$url" | base64 -w 0)
+baseurl=$(base64 -w 0 < jh.txt)
 
 cat > sing_box.json <<EOF
 {
@@ -703,16 +698,16 @@ cat > sing_box.json <<EOF
       "default": "auto",
       "outbounds": [
         "auto",
-        "vless-$NAME",
-        "vmess-$NAME",
-        "hy2-$NAME",
-"vmess-tls-argo-$NAME",
-"vmess-argo-$NAME"
+        "vless-$snb",
+        "vmess-$snb",
+        "hy2-$snb",
+"vmess-tls-argo-$snb",
+"vmess-argo-$snb"
       ]
     },
     {
       "type": "vless",
-      "tag": "vless-$NAME",
+      "tag": "vless-$snb",
       "server": "$IP",
       "server_port": $vless_port,
       "uuid": "$UUID",
@@ -735,7 +730,7 @@ cat > sing_box.json <<EOF
 {
             "server": "$IP",
             "server_port": $vmess_port,
-            "tag": "vmess-$NAME",
+            "tag": "vmess-$snb",
             "tls": {
                 "enabled": false,
                 "server_name": "www.bing.com",
@@ -762,7 +757,7 @@ cat > sing_box.json <<EOF
 
     {
         "type": "hysteria2",
-        "tag": "hy2-$NAME",
+        "tag": "hy2-$snb",
         "server": "$IP",
         "server_port": $hy2_port,
         "password": "$UUID",
@@ -778,7 +773,7 @@ cat > sing_box.json <<EOF
 {
             "server": "icook.hk",
             "server_port": 8443,
-            "tag": "vmess-tls-argo-$NAME",
+            "tag": "vmess-tls-argo-$snb",
             "tls": {
                 "enabled": true,
                 "server_name": "$argodomain",
@@ -805,7 +800,7 @@ cat > sing_box.json <<EOF
 {
             "server": "icook.hk",
             "server_port": 8880,
-            "tag": "vmess-argo-$NAME",
+            "tag": "vmess-argo-$snb",
             "tls": {
                 "enabled": false,
                 "server_name": "$argodomain",
@@ -837,11 +832,11 @@ cat > sing_box.json <<EOF
       "tag": "auto",
       "type": "urltest",
       "outbounds": [
-        "vless-$NAME",
-        "vmess-$NAME",
-        "hy2-$NAME",
-"vmess-tls-argo-$NAME",
-"vmess-argo-$NAME"
+        "vless-$snb",
+        "vmess-$snb",
+        "hy2-$snb",
+"vmess-tls-argo-$snb",
+"vmess-argo-$snb"
       ],
       "url": "https://www.gstatic.com/generate_204",
       "interval": "1m",
@@ -957,7 +952,7 @@ dns:
       - 240.0.0.0/4
 
 proxies:
-- name: vless-reality-vision-$NAME               
+- name: vless-reality-vision-$snb               
   type: vless
   server: $IP                           
   port: $vless_port                                
@@ -971,7 +966,7 @@ proxies:
     public-key: $public_key                      
   client-fingerprint: chrome                  
 
-- name: vmess-ws-$NAME                         
+- name: vmess-ws-$snb                         
   type: vmess
   server: $IP                       
   port: $vmess_port                                     
@@ -987,7 +982,7 @@ proxies:
     headers:
       Host: www.bing.com                     
 
-- name: hysteria2-$NAME                            
+- name: hysteria2-$snb                            
   type: hysteria2                                      
   server: $IP                               
   port: $hy2_port                                
@@ -998,7 +993,7 @@ proxies:
   skip-cert-verify: true
   fast-open: true
 
-- name: vmess-tls-argo-$NAME                         
+- name: vmess-tls-argo-$snb                         
   type: vmess
   server: icook.hk                        
   port: 8443                                     
@@ -1014,7 +1009,7 @@ proxies:
     headers:
       Host: $argodomain
 
-- name: vmess-argo-$NAME                         
+- name: vmess-argo-$snb                         
   type: vmess
   server: icook.hk                        
   port: 8880                                     
@@ -1037,11 +1032,11 @@ proxy-groups:
   interval: 300
   strategy: round-robin
   proxies:
-    - vless-reality-vision-$NAME                              
-    - vmess-ws-$NAME
-    - hysteria2-$NAME
-    - vmess-tls-argo-$NAME
-    - vmess-argo-$NAME
+    - vless-reality-vision-$snb                              
+    - vmess-ws-$snb
+    - hysteria2-$snb
+    - vmess-tls-argo-$snb
+    - vmess-argo-$snb
 
 - name: Auto
   type: url-test
@@ -1049,11 +1044,11 @@ proxy-groups:
   interval: 300
   tolerance: 50
   proxies:
-    - vless-reality-vision-$NAME                              
-    - vmess-ws-$NAME
-    - hysteria2-$NAME
-    - vmess-tls-argo-$NAME
-    - vmess-argo-$NAME
+    - vless-reality-vision-$snb                             
+    - vmess-ws-$snb
+    - hysteria2-$snb
+    - vmess-tls-argo-$snb
+    - vmess-argo-$snb
     
 - name: Select
   type: select
@@ -1061,11 +1056,11 @@ proxy-groups:
     - Balance                                         
     - Auto
     - DIRECT
-    - vless-reality-vision-$NAME                              
-    - vmess-ws-$NAME
-    - hysteria2-$NAME
-    - vmess-tls-argo-$NAME
-    - vmess-argo-$NAME
+    - vless-reality-vision-$snb                              
+    - vmess-ws-$snb
+    - hysteria2-$snb
+    - vmess-tls-argo-$snb
+    - vmess-argo-$snb
 rules:
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
@@ -1075,9 +1070,11 @@ EOF
 
 sleep 2
 [ -d "$FILE_PATH" ] || mkdir -p "$FILE_PATH"
-echo "$baseurl" > ${FILE_PATH}/${UUID}_v2sub.txt
+v2sub=$(cat jh.txt)
+echo "$v2sub" > ${FILE_PATH}/${UUID}_v2sub.txt
 cat clash_meta.yaml > ${FILE_PATH}/${UUID}_clashmeta.txt
 cat sing_box.json > ${FILE_PATH}/${UUID}_singbox.txt
+curl -sL https://raw.githubusercontent.com/yonggekkk/sing-box-yg/main/index.html -o "$FILE_PATH"/index.html
 V2rayN_LINK="https://${USERNAME}.serv00.net/${UUID}_v2sub.txt"
 Clashmeta_LINK="https://${USERNAME}.serv00.net/${UUID}_clashmeta.txt"
 Singbox_LINK="https://${USERNAME}.serv00.net/${UUID}_singbox.txt"
